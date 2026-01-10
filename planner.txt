@@ -1,0 +1,133 @@
+LLM RAG Knowledge Assistant — Project Planner (Implementation Summary)
+
+Project Goal
+------------
+Build a complete Retrieval-Augmented Generation (RAG) system from scratch that can:
+- load local documents
+- chunk and embed content using SentenceTransformers
+- index embeddings using FAISS
+- retrieve top relevant chunks for a user query
+- generate grounded answers using OpenAI
+- expose functionality via FastAPI (/ask)
+- provide a Streamlit chat UI for user interaction
+
+Core Stack
+----------
+- Python 3.x
+- SentenceTransformers (all-MiniLM-L6-v2)
+- FAISS (vector similarity search)
+- FastAPI + Uvicorn (backend API)
+- OpenAI SDK (answer generation)
+- Streamlit (chat UI)
+- Requests (UI → API calls)
+
+Key Modules & Responsibilities
+------------------------------
+
+1) Document Loader
+   File: app/loader.py
+   Purpose:
+   - Load all .txt documents from data/sample_docs/
+   - Return structured documents with doc_id/source/text
+
+2) Chunking
+   File: app/chunking.py
+   Purpose:
+   - Split document text into overlapping chunks
+   - Preserve context using overlap
+   - Return list of chunk strings
+
+3) Embeddings + Vector Store
+   File: app/embeddings.py
+   Purpose:
+   - Generate embeddings for document chunks
+   - Maintain FAISS index
+   - Store chunk metadata aligned with index positions
+   - Search for nearest chunks by query embedding
+
+4) Prompt & Context Builder
+   File: app/prompts.py
+   Purpose:
+   - Convert retrieved chunks into structured context blocks
+   - Build a final LLM prompt requiring grounded answers
+
+5) Persistence (Production Improvement)
+   File: app/persistence.py
+   Purpose:
+   - Save FAISS index to disk (storage/faiss.index)
+   - Save chunk metadata to JSON (storage/metadata.json)
+   - Load index + metadata at startup for fast reuse
+
+6) RAG Orchestration
+   File: app/rag.py
+   Purpose:
+   - question → retrieve chunks → build context → build prompt → generate answer
+   - return answer + sources for transparency
+
+7) OpenAI Answer Generation
+   File: app/llm.py
+   Purpose:
+   - send prompt to OpenAI model
+   - return final response text
+   - handle missing API key and failures
+
+8) Backend API (FastAPI)
+   File: app/main.py
+   Purpose:
+   - Start server with lifespan startup handler
+   - Load FAISS index once at startup
+   - Provide endpoints:
+     - GET /health
+     - POST /ask  (request: question, top_k ; response: answer + sources)
+
+9) Streamlit Chat UI
+   File: ui_streamlit.py
+   Purpose:
+   - Provide chat-style UI interface
+   - call backend /ask endpoint
+   - show answer + expandable sources
+   - include UI controls: top_k, show sources, show full source text, chat memory, clear chat
+
+Scripts (Local Validation)
+--------------------------
+- text_embeddings.py        -> validates FAISS embeddings pipeline
+- rag_retrieval_day2.py     -> validates chunking + retrieval
+- rag_ask_cli.py            -> offline prompt builder test
+- rag_ask_openai.py         -> test OpenAI RAG answering
+- ui_streamlit.py           -> final chat UI
+
+Environment Configuration
+-------------------------
+Required:
+- OPENAI_API_KEY environment variable must be set
+
+Recommended:
+- Keep API key out of code and GitHub
+- Use Windows Environment variables or session variables
+
+Run Instructions
+----------------
+
+1) Install dependencies
+   pip install -r requirements.txt
+
+2) Start FastAPI backend
+   uvicorn app.main:app --reload
+
+3) Start Streamlit UI
+   streamlit run ui_streamlit.py
+
+4) Use:
+   - FastAPI docs: http://127.0.0.1:8000/docs
+   - Streamlit UI: http://127.0.0.1:8501
+
+Final Deliverables
+------------------
+- Full RAG system working locally
+- Answer generation grounded in retrieved chunks
+- Sources returned for transparency
+- API-ready backend + UI-ready frontend
+
+Suggested GitHub Commit Title
+-----------------------------
+Final: End-to-end RAG assistant with FastAPI + Streamlit UI
