@@ -1,0 +1,30 @@
+Python and FastAPI Notes
+
+FastAPI is a modern, fast (high-performance) web framework for building APIs with Python.
+It is based on standard Python type hints and supports asynchronous programming.
+
+Why FastAPI is popular:
+1) High performance:
+FastAPI is built on Starlette and Pydantic, making it one of the fastest Python frameworks.
+
+2) Type-safe development:
+Using Python type hints enables automatic validation, serialization, and documentation.
+
+3) Automatic Docs:
+FastAPI generates Swagger UI and ReDoc automatically.
+- Swagger UI: /docs
+- ReDoc: /redoc
+
+Example FastAPI endpoint:
+- @app.get("/items/{item_id}")
+- async def read_item(item_id: int)
+
+Key concepts:
+- Path parameters
+- Query parameters
+- Request body using Pydantic models
+- Response models
+- Dependency Injection using Depends()
+
+FastAPI works well with microservices, backend systems, and AI model serving.
+It can also integrate with authentication (JWT), databases, and external APIs.

@@ -1,38 +1,54 @@
-from sentence_transformers import SentenceTransformer
+from typing import List, Dict
 import faiss
-import numpy as np
+#import numpy as np
+from sentence_transformers import SentenceTransformer
 
-MODEL_NAME = "all-MiniLM-L6-v2"
 
-class EmbeddingStore:
-    def __init__(self):
-        self.model = SentenceTransformer(MODEL_NAME)
+class FaissEmbeddingStore:
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        self.model = SentenceTransformer(model_name)
         self.index = None
-        self.texts = []
 
-    def add_documents(self, documents: list[str]):
-        embeddings = self.model.encode(documents)
+        # Stores chunk metadata by position in FAISS index
+        self.chunk_metadata: List[Dict] = []
 
-        # FAISS requires float32
-        embeddings = np.array(embeddings).astype("float32")
-        dimension = embeddings.shape[1]
+    def add_chunks(self, chunks: List[Dict]):
+        """
+        chunks: List of dicts
+        Each dict: {chunk_id, doc_id, source, text}
+        """
+        texts = [c["text"] for c in chunks]
+        embeddings = self.model.encode(texts, convert_to_numpy=True)
+
+        embeddings = embeddings.astype("float32")
+        dim = embeddings.shape[1]
 
         if self.index is None:
-            self.index = faiss.IndexFlatL2(dimension)
+            self.index = faiss.IndexFlatL2(dim)
 
-        # noinspection PyArgumentList
         self.index.add(embeddings)
-        self.texts.extend(documents)
+
+        # Save metadata aligned with embeddings
+        self.chunk_metadata.extend(chunks)
 
     def search(self, query: str, top_k: int = 3):
-        query_embedding = self.model.encode([query])
-        query_embedding = np.array(query_embedding).astype("float32")
+        if self.index is None:
+            raise ValueError("FAISS index not initialized. Add chunks first.")
 
-        distances, indices = self.index.search(query_embedding, top_k)
+        query_emb = self.model.encode([query], convert_to_numpy=True).astype("float32")
+        distances, indices = self.index.search(query_emb, top_k)
 
         results = []
-        for idx in indices[0]:
-            if idx < len(self.texts):
-                results.append(self.texts[idx])
+        for idx, dist in zip(indices[0], distances[0]):
+            if idx == -1:
+                continue
+            meta = self.chunk_metadata[idx]
+            results.append({
+                "score": float(dist),
+                "chunk_id": meta["chunk_id"],
+                "doc_id": meta["doc_id"],
+                "source": meta["source"],
+                "text": meta["text"]
+            })
 
         return results

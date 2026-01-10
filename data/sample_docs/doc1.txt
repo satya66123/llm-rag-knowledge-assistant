@@ -1,1 +1,28 @@
-Retrieval-Augmented Generation (RAG) combines information retrieval with large language models to produce grounded and accurate responses.
+Java and Spring Boot Notes
+
+Spring Boot is a framework built on top of the Spring Framework that helps developers create production-ready Java applications quickly.
+It provides auto-configuration, embedded servers (like Tomcat), and starter dependencies that simplify setup.
+
+Key Features of Spring Boot:
+1) Auto Configuration:
+Spring Boot automatically configures beans based on classpath dependencies.
+For example, if spring-boot-starter-web is present, it configures Spring MVC automatically.
+
+2) Starter Dependencies:
+Starters bundle common dependencies together. Examples:
+- spring-boot-starter-web (REST APIs)
+- spring-boot-starter-data-jpa (database + JPA)
+- spring-boot-starter-security (authentication and authorization)
+
+3) Embedded Server:
+Spring Boot applications can run without external server installation.
+It uses embedded Tomcat/Jetty/Undertow.
+
+Common Spring Boot Components:
+- @RestController: used to create REST APIs
+- @Service: service layer logic
+- @Repository: data access layer
+- @Entity: database table mapping
+- application.properties / application.yml: configuration
+
+Spring Boot supports building REST APIs with JSON request/response, validation using Hibernate Validator, and integration with databases like MySQL and PostgreSQL.

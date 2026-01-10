@@ -1,0 +1,34 @@
+RAG, Embeddings, and FAISS Notes
+
+RAG stands for Retrieval-Augmented Generation.
+It combines:
+1) Retrieval (searching relevant documents)
+2) Generation (LLM produces final answer)
+
+Instead of relying only on an LLM’s internal memory, RAG fetches relevant context and feeds it
+into the prompt.
+This improves accuracy and reduces hallucination.
+
+Core RAG Flow:
+1) Load documents
+2) Chunk documents into small parts
+3) Convert each chunk into an embedding
+4) Store embeddings in a vector database or index
+5) For a query:
+   - Convert query into embedding
+   - Find nearest chunks using similarity search
+   - Provide top chunks as context to the LLM
+
+Embeddings:
+Embeddings are numerical vector representations of text that capture semantic meaning.
+Similar meanings produce vectors close to each other.
+
+FAISS:
+FAISS is a vector similarity search library developed by Facebook AI Research.
+It efficiently finds nearest vectors for semantic search.
+FAISS supports multiple index types. IndexFlatL2 is a simple and reliable baseline index.
+
+Important chunking concepts:
+- Chunk size
+- Chunk overlap
+Chunk overlap helps avoid losing context at chunk boundaries.
