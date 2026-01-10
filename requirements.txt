@@ -5,3 +5,5 @@ openai
 faiss-cpu
 sentence-transformers
 pydantic
+streamlit
+jinja2
